@@ -77,13 +77,10 @@ function Shuffle() {
     let currentIndex = newBlocks.length,
       randomIndex;
 
-    // While there remain elements to shuffle.
     while (currentIndex > 0) {
-      // Pick a remaining element.
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex--;
 
-      // And swap it with the current element.
       [newBlocks[currentIndex], newBlocks[randomIndex]] = [
         newBlocks[randomIndex],
         newBlocks[currentIndex],
@@ -97,11 +94,18 @@ function Shuffle() {
     <div>
       <button onClick={shuffle}>Shuffle</button>
       <div style={{ display: "flex" }}>
-        {blocks.map((block) => (
-          <animate.div
-            key={block}
-            style={{ width: 100, height: 200, background: block }}
-          />
+        {blocks.map((block, index) => (
+          <animate.div key={block}>
+            <div
+              style={{
+                width: 100,
+                height: 200,
+                background: block,
+                transform: `rotate(${-10 + index * 10}deg)`,
+                transition: "transform 300ms ease-in-out",
+              }}
+            />
+          </animate.div>
         ))}
       </div>
     </div>
@@ -140,7 +144,9 @@ function Faq() {
           >
             {question}
           </animate.button>
-          {selected === question ? <animate.p>{answer}</animate.p> : null}
+          {selected === question ? (
+            <animate.p key="answer">{answer}</animate.p>
+          ) : null}
         </>
       ))}
     </div>
