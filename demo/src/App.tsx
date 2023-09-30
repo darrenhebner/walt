@@ -16,7 +16,57 @@ function App() {
       <animate.section>
         <Chat />
       </animate.section>
+
+      <animate.section>
+        <Tabs />
+      </animate.section>
     </div>
+  );
+}
+
+const tabs = ["First", "Second", "Third"] as const;
+type Tab = (typeof tabs)[number];
+
+function Tabs() {
+  const [selected, setSelected] = useState<Tab>(tabs[0]);
+  const [hovered, setHovered] = useState<Tab>();
+  const withTransition = useViewTransition();
+
+  function hover(tab: typeof hovered) {
+    withTransition(() => {
+      setHovered(tab);
+    });
+  }
+
+  return (
+    <ul style={{ display: "flex", listStyle: "none", padding: 0 }}>
+      {tabs.map((tab) => (
+        <li
+          key={tab}
+          onMouseEnter={() => hover(tab)}
+          onMouseLeave={() => hover(undefined)}
+          style={{ padding: 8 }}
+        >
+          <button
+            style={{ border: "none", background: "none" }}
+            onClick={() => withTransition(() => setSelected(tab))}
+          >
+            {tab}
+            {hovered === tab || (hovered == null && tab === selected) ? (
+              <animate.div
+                id="marker"
+                style={{
+                  transformOrigin: "top left",
+                  background: "white",
+                  height: 2,
+                  width: "100%",
+                }}
+              />
+            ) : null}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -95,7 +145,7 @@ function Shuffle() {
       <button onClick={shuffle}>Shuffle</button>
       <div style={{ display: "flex" }}>
         {blocks.map((block, index) => (
-          <animate.div key={block}>
+          <animate.div key={block} id={block}>
             <div
               style={{
                 width: 100,
@@ -136,18 +186,17 @@ function Faq() {
   return (
     <div>
       {questions.map(({ question, answer }) => (
-        <>
+        <div key={question}>
           <animate.button
-            key={question}
             onClick={() => select(question)}
             style={{ display: "block" }}
           >
             {question}
           </animate.button>
           {selected === question ? (
-            <animate.p key="answer">{answer}</animate.p>
+            <animate.p id="answer">{answer}</animate.p>
           ) : null}
-        </>
+        </div>
       ))}
     </div>
   );
