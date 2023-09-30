@@ -1,0 +1,28 @@
+{
+  "name": "walt-react",
+  "version": "0.0.1",
+  "description": "",
+  "source": "src/index.tsx",
+  "scripts": {
+    "build": "microbundle --jsx React.createElement",
+    "dev": "microbundle watch --jsx React.createElement"
+  },
+  "exports": {
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.modern.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "author": "Darren Hebner",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^18.2.23",
+    "@types/react-dom": "^18.2.8",
+    "microbundle": "^0.15.1"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  }
+}
