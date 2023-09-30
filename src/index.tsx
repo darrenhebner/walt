@@ -11,45 +11,44 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 
-interface Item {
+interface Performer {
   beforeTransition(): void;
   afterTransition(): undefined | (() => void);
 }
 
-const TransitionScopeContext = createContext({
-  items: new Set<Item>(),
+const ScopeContext = createContext({
+  performers: new Set<Performer>(),
 });
 
-function ScopeProvider({ children }: PropsWithChildren<{}>) {
+export function Scope({ children }: PropsWithChildren<{}>) {
   const context = useMemo(() => {
     return {
-      items: new Set<Item>(),
+      performers: new Set<Performer>(),
     };
   }, []);
 
   return (
-    <TransitionScopeContext.Provider value={context}>
-      {children}
-    </TransitionScopeContext.Provider>
+    <ScopeContext.Provider value={context}>{children}</ScopeContext.Provider>
   );
 }
 
 export function useViewTransition() {
-  const { items } = useContext(TransitionScopeContext);
+  const { performers } = useContext(ScopeContext);
 
   return useCallback((callback: () => void) => {
-    const pendingTransitions = new Set<Item>();
+    const pending = new Set<Performer>();
 
-    items.forEach((item) => {
-      item.beforeTransition();
-      pendingTransitions.add(item);
+    performers.forEach((performer) => {
+      performer.beforeTransition();
+      pending.add(performer);
     });
 
     flushSync(callback);
-    const performers = Array.from(pendingTransitions).map((item) =>
-      item.afterTransition()
+
+    const pendingPerformances = Array.from(pending).map((performer) =>
+      performer.afterTransition()
     );
-    performers.forEach((perform) => perform?.());
+    pendingPerformances.forEach((perform) => perform?.());
   }, []);
 }
 
@@ -81,12 +80,12 @@ function createComponent<T extends keyof JSX.IntrinsicElements>(Component: T) {
     ...props
   }: ComponentPropsWithoutRef<T>) {
     const ref = useRef<HTMLDivElement>(null);
-    const { items } = useContext(TransitionScopeContext);
+    const { performers } = useContext(ScopeContext);
 
     useEffect(() => {
       let before: DOMRect | undefined;
 
-      const item: Item = {
+      const item: Performer = {
         beforeTransition() {
           if (!ref.current) return;
           before = ref.current.getBoundingClientRect();
@@ -119,16 +118,18 @@ function createComponent<T extends keyof JSX.IntrinsicElements>(Component: T) {
         },
       };
 
-      items.add(item);
+      performers.add(item);
       return () => {
-        items.delete(item);
+        performers.delete(item);
       };
     }, []);
 
+    const C = Component as any;
+
     return (
-      <Component ref={ref} {...props}>
-        <ScopeProvider>{children}</ScopeProvider>
-      </Component>
+      <C ref={ref} {...props}>
+        <Scope>{children}</Scope>
+      </C>
     );
   };
 }
